@@ -1,3 +1,3 @@
 FROM nginx:1.13.10-alpine
 COPY blog /usr/share/nginx/html
-EXPOSE 8080:80
+EXPOSE 80
