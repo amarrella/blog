@@ -19,16 +19,16 @@ In this post, I will present the [kubernetes-webhook-haskell](https://hackage.ha
 ## How to write a Kubernetes Webhook in Haskell
 This is a step by step explanation on how to write a webhook in Haskell. If you are familiar with Haskell, and servant, you can skip this section and [look at the example](https://github.com/EarnestResearch/kubernetes-webhook-haskell#kubernetes-webhook-haskell) instead.
 
-First of all, set up a project using your favorite build tool, adding `kubernetes-webhook-haskell` as a dependency.
+First of all, *set up a project* using your favorite build tool, adding `kubernetes-webhook-haskell` as a dependency.
 
-Second, you need to create an endpoint where you will be receiving the requests. In `servant`, this looks like:
+Second, you need to *create an endpoint* where you will be receiving the requests. In `servant`, this looks like:
 ```haskell
 type API =
   -- /mutate
   "mutate" :> ReqBody '[JSON] AdmissionReviewRequest :> Post '[JSON] AdmissionReviewResponse
 ```
 
-Third, you need to set up the server so that it runs on https (kubernetes only allows https for webhooks), with `warp-tls` you can do something like:
+Third, you need to *set up the server so that it runs on https* (kubernetes only allows https for webhooks), with `warp-tls` you can do something like:
 
 ```haskell
 main :: IO ()
@@ -39,7 +39,7 @@ main = do
 ```
 If you will be using the template provided in the section below, we will load the certificates there.
 
-Fourth, you can write the webhook logic. Depending on whether you are writing a validating or a mutating webhook, the library exposes two different functions: `mutatingWebhook` and `validatingWebhook`. The logic is similar for both, you parse a request, write a handler for it returning either an error (of type `Status`) or a `Allowed`/`Patch` (see http://jsonpatch.com/ for information on how to write the patch).
+Fourth, you can *write the webhook logic*. Depending on whether you are writing a validating or a mutating webhook, the library exposes two different functions: `mutatingWebhook` and `validatingWebhook`. The logic is similar for both, you parse a request, write a handler for it returning either an error (of type `Status`) or a `Allowed`/`Patch` (see http://jsonpatch.com/ for information on how to write the patch).
 
 For example, if you want to write a mutating webhook that adds a toleration to your pods, you should define the Toleration type:
 ```haskell
@@ -93,11 +93,11 @@ And that's it! Compile and create a docker image, and jump to the next section.
 ## How to deploy the Kubernetes Webhook using Dhall
 Regardless of the fact that you created the webhook with the library above or not, this part explains how to deploy a webhook to Kubernetes by using an opinionated dhall template.
 
-As a pre-requisite for this part, you need to:
+As a *pre-requisite* for this part, you need to:
 - Install [cert-manager](https://cert-manager.io) in your cluster. This has been tested with cert-manager `v0.13.0` with the ca-injector enabled.
 - Install [dhall-to-yaml](https://dhall-lang.org) on your laptop or in your continuous deployment / gitops. This has been tested with dhall-to-yaml `v1.6.1`.
 
-Then, add a custom label to the namespaces you want to apply the webhook to:
+Then, *add a custom label* to the namespaces you want to apply the webhook to:
 ```sh
 kubectl label namespace my-namespace my-webhook=enabled
 ```
@@ -136,7 +136,7 @@ in  Webhook.renderMutatingWebhook config -- or Webhook.renderValidatingWebhook
 
 Once the file is ready, run 
 ```
-dhall-to-yaml --omit-empty | kubectl apply -n default -f -
+echo ./webhook.dhall | dhall-to-yaml --omit-empty | kubectl apply -n default -f -
 ```
 
 The webhook will be installed and ready to use, with all the certificates loaded.
