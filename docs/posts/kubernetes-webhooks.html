@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en"> 
+<head profile="http://www.w3.org/2005/10/profile">
+    <meta charset="UTF-8">
+    <meta name="description" content="Alessandro Marrella. Welcome to my website!">
+    <meta name="author" content="Alessandro Marrella">
+    <meta name=viewport content="width=device-width, initial-scale=1">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@amarrella">
+<meta name="twitter:creator" content="@amarrella">
+<meta name="twitter:title" content="Kubernetes Webhooks in Haskell and Dhall">
+    <meta name="twitter:description" content="How to write a kubernetes admission controller in Haskell">
+        <title>Kubernetes Webhooks in Haskell and Dhall</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <a id="beacon" href="/">
+                <div id="home-text"> HOME </div>
+            </a>
+        </nav>
+    
+        <div class="right-sidebar">
+            <a class="ext-link" href="https://github.com/amarrella">
+            <img src="/images/github-logo.png" alt="Github Profile"/>
+        </a>
+
+            <a class="ext-link" href="https://twitter.com/amarrella">
+            <img src="/images/twitter-logo.png" alt="Twitter Profile"/>
+        </a>
+    <div id="theme-button">DAY</div>
+        </div>
+    </header>
+
+<div id="page">
+    <div class="wrapper">
+        <div class="masthead">
+            <span class="title">
+                Kubernetes Webhooks in Haskell and Dhall
+            </span>
+            <br>
+
+            <br>
+            <span class="byline">by Alessandro Marrella</span>
+            <br>
+            <span class="date">2020-02-09</span>
+            <br>
+            <div class="metadata">
+            </div>
+        </div>
+    </div>
+    <article class="post">
+        <p>I spent the past few weeks fighting with Kubernetes <a href="https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/">Admission Controllers</a> (also known as Mutating/Validating Webhooks).</p>
+<p>Admission controllers are a quite powerful tool, that allow intercepting requests to the Kubernetes API Server before an object is persisted, and perform custom validations or mutations on it.</p>
+<p>There are two main components to an admission controller:</p>
+<ol>
+<li>A <em>webhook</em> exposed over HTTPS which accepts an <code>AdmissionReviewRequest</code> and returns an <code>AdmissionReviewResponse</code></li>
+<li>A <em>configuration</em> entry of type <code>MutatingWebhookConfiguration</code> or <code>ValidatingWebhookConfiguration</code></li>
+</ol>
+<p>In this post, I will present the <a href="https://hackage.haskell.org/package/kubernetes-webhook-haskell">kubernetes-webhook-haskell</a> library, which is used to create the webhook, and a <code>dhall</code> template that helps with the configuration and tls certificates. Many tutorials I found online show how to do this with a bash script, here we take a more declarative approach using <a href="https://cert-manager.io">cert-manager</a>.</p>
+<h2 id="how-to-write-a-kubernetes-webhook-in-haskell">How to write a Kubernetes Webhook in Haskell</h2>
+<p>This is a step by step explanation on how to write a webhook in Haskell. If you are familiar with Haskell, and servant, you can skip this section and <a href="https://github.com/EarnestResearch/kubernetes-webhook-haskell#kubernetes-webhook-haskell">look at the example</a> instead.</p>
+<p>First of all, set up a project using your favorite build tool, adding <code>kubernetes-webhook-haskell</code> as a dependency.</p>
+<p>Second, you need to create an endpoint where you will be receiving the requests. In <code>servant</code>, this looks like:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">type</span> <span class="dt">API</span> <span class="ot">=</span></span>
+<span id="cb1-2"><a href="#cb1-2"></a>  <span class="co">-- /mutate</span></span>
+<span id="cb1-3"><a href="#cb1-3"></a>  <span class="st">&quot;mutate&quot;</span> <span class="op">:&gt;</span> <span class="dt">ReqBody</span> &#39;[<span class="dt">JSON</span>] <span class="dt">AdmissionReviewRequest</span> <span class="op">:&gt;</span> <span class="dt">Post</span> &#39;[<span class="dt">JSON</span>] <span class="dt">AdmissionReviewResponse</span></span></code></pre></div>
+<p>Third, you need to set up the server so that it runs on https (kubernetes only allows https for webhooks), with <code>warp-tls</code> you can do something like:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb2-1"><a href="#cb2-1"></a><span class="ot">main ::</span> <span class="dt">IO</span> ()</span>
+<span id="cb2-2"><a href="#cb2-2"></a>main <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb2-3"><a href="#cb2-3"></a>  <span class="kw">let</span> tlsOpts <span class="ot">=</span> tlsSettings <span class="st">&quot;/certs/tls.crt&quot;</span> <span class="st">&quot;/certs/tls.key&quot;</span></span>
+<span id="cb2-4"><a href="#cb2-4"></a>      warpOpts <span class="ot">=</span> setPort <span class="dv">8080</span> defaultSettings</span>
+<span id="cb2-5"><a href="#cb2-5"></a>  runTLS tlsOpts warpOpts app</span></code></pre></div>
+<p>If you will be using the template provided in the section below, we will load the certificates there.</p>
+<p>Fourth, you can write the webhook logic. Depending on whether you are writing a validating or a mutating webhook, the library exposes two different functions: <code>mutatingWebhook</code> and <code>validatingWebhook</code>. The logic is similar for both, you parse a request, write a handler for it returning either an error (of type <code>Status</code>) or a <code>Allowed</code>/<code>Patch</code> (see <a href="http://jsonpatch.com/" class="uri">http://jsonpatch.com/</a> for information on how to write the patch).</p>
+<p>For example, if you want to write a mutating webhook that adds a toleration to your pods, you should define the Toleration type:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb3-1"><a href="#cb3-1"></a><span class="kw">data</span> <span class="dt">Toleration</span></span>
+<span id="cb3-2"><a href="#cb3-2"></a>  <span class="ot">=</span> <span class="dt">Toleration</span></span>
+<span id="cb3-3"><a href="#cb3-3"></a>      {<span class="ot"> effect ::</span> <span class="dt">Maybe</span> <span class="dt">TolerationEffect</span>,</span>
+<span id="cb3-4"><a href="#cb3-4"></a><span class="ot">        key ::</span> <span class="dt">Maybe</span> <span class="dt">Text</span>,</span>
+<span id="cb3-5"><a href="#cb3-5"></a><span class="ot">        operator ::</span> <span class="dt">Maybe</span> <span class="dt">TolerationOperator</span>,</span>
+<span id="cb3-6"><a href="#cb3-6"></a><span class="ot">        tolerationSeconds ::</span> <span class="dt">Maybe</span> <span class="dt">Integer</span>,</span>
+<span id="cb3-7"><a href="#cb3-7"></a><span class="ot">        value ::</span> <span class="dt">Maybe</span> <span class="dt">Text</span></span>
+<span id="cb3-8"><a href="#cb3-8"></a>      }</span>
+<span id="cb3-9"><a href="#cb3-9"></a>  <span class="kw">deriving</span> (<span class="dt">Generic</span>, <span class="dt">A.ToJSON</span>)</span>
+<span id="cb3-10"><a href="#cb3-10"></a></span>
+<span id="cb3-11"><a href="#cb3-11"></a><span class="kw">data</span> <span class="dt">TolerationEffect</span> <span class="ot">=</span> <span class="dt">NoSchedule</span> <span class="op">|</span> <span class="dt">PreferNoSchedule</span> <span class="op">|</span> <span class="dt">NoExecute</span> <span class="kw">deriving</span> (<span class="dt">Generic</span>, <span class="dt">A.ToJSON</span>)</span>
+<span id="cb3-12"><a href="#cb3-12"></a></span>
+<span id="cb3-13"><a href="#cb3-13"></a><span class="kw">data</span> <span class="dt">TolerationOperator</span> <span class="ot">=</span> <span class="dt">Exists</span> <span class="op">|</span> <span class="dt">Equal</span> <span class="kw">deriving</span> (<span class="dt">Generic</span>, <span class="dt">A.ToJSON</span>)</span></code></pre></div>
+<p>and then your patch can look like:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb4-1"><a href="#cb4-1"></a><span class="ot">patch ::</span> <span class="dt">W.Patch</span></span>
+<span id="cb4-2"><a href="#cb4-2"></a>patch <span class="ot">=</span></span>
+<span id="cb4-3"><a href="#cb4-3"></a>  <span class="dt">W.Patch</span></span>
+<span id="cb4-4"><a href="#cb4-4"></a>    [ </span>
+<span id="cb4-5"><a href="#cb4-5"></a>        <span class="dt">W.PatchOperation</span></span>
+<span id="cb4-6"><a href="#cb4-6"></a>        { op <span class="ot">=</span> <span class="dt">W.Add</span>,</span>
+<span id="cb4-7"><a href="#cb4-7"></a>          path <span class="ot">=</span> <span class="st">&quot;/spec/tolerations/-&quot;</span>,</span>
+<span id="cb4-8"><a href="#cb4-8"></a>          from <span class="ot">=</span> <span class="dt">Nothing</span>,</span>
+<span id="cb4-9"><a href="#cb4-9"></a>          value <span class="ot">=</span> <span class="dt">Just</span> <span class="op">$</span> A.toJSON toleration</span>
+<span id="cb4-10"><a href="#cb4-10"></a>        }</span>
+<span id="cb4-11"><a href="#cb4-11"></a>    ]</span>
+<span id="cb4-12"><a href="#cb4-12"></a>  <span class="kw">where</span> </span>
+<span id="cb4-13"><a href="#cb4-13"></a>    toleration <span class="ot">=</span> </span>
+<span id="cb4-14"><a href="#cb4-14"></a>      <span class="dt">Toleration</span></span>
+<span id="cb4-15"><a href="#cb4-15"></a>        { effect <span class="ot">=</span> <span class="dt">Just</span> <span class="dt">NoSchedule</span>,</span>
+<span id="cb4-16"><a href="#cb4-16"></a>          key <span class="ot">=</span> <span class="dt">Just</span> <span class="st">&quot;foo&quot;</span>,</span>
+<span id="cb4-17"><a href="#cb4-17"></a>          operator <span class="ot">=</span> <span class="dt">Just</span> <span class="dt">Equal</span>,</span>
+<span id="cb4-18"><a href="#cb4-18"></a>          tolerationSeconds <span class="ot">=</span> <span class="dt">Nothing</span>,</span>
+<span id="cb4-19"><a href="#cb4-19"></a>          value <span class="ot">=</span> <span class="dt">Nothing</span></span>
+<span id="cb4-20"><a href="#cb4-20"></a>        }</span></code></pre></div>
+<p>Then your patch in the <code>mutatingWebhook</code>:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb5-1"><a href="#cb5-1"></a><span class="ot">mutate ::</span> <span class="dt">AdmissionReviewRequest</span> <span class="ot">-&gt;</span> <span class="dt">AdmissionReviewResponse</span></span>
+<span id="cb5-2"><a href="#cb5-2"></a>mutate <span class="ot">=</span> mutatingWebhook req (\_ <span class="ot">-&gt;</span> <span class="dt">Right</span> patch)</span></code></pre></div>
+<p>And that's it! Compile and create a docker image, and jump to the next section.</p>
+<h2 id="how-to-deploy-the-kubernetes-webhook-using-dhall">How to deploy the Kubernetes Webhook using Dhall</h2>
+<p>Regardless of the fact that you created the webhook with the library above or not, this part explains how to deploy a webhook to Kubernetes by using an opinionated dhall template.</p>
+<p>As a pre-requisite for this part, you need to:</p>
+<ul>
+<li>Install <a href="https://cert-manager.io">cert-manager</a> in your cluster. This has been tested with cert-manager <code>v0.13.0</code> with the ca-injector enabled.</li>
+<li>Install <a href="https://dhall-lang.org">dhall-to-yaml</a> on your laptop or in your continuous deployment / gitops. This has been tested with dhall-to-yaml <code>v1.6.1</code>.</li>
+</ul>
+<p>Then, add a custom label to the namespaces you want to apply the webhook to:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1"></a><span class="ex">kubectl</span> label namespace my-namespace my-webhook=enabled</span></code></pre></div>
+<p>Deploying a webhook now is as easy as replacing the values in this example with yours:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb7-1"><a href="#cb7-1"></a><span class="co">-- webhook.dhall</span></span>
+<span id="cb7-2"><a href="#cb7-2"></a><span class="kw">let</span> k8s <span class="ot">=</span> </span>
+<span id="cb7-3"><a href="#cb7-3"></a>    https<span class="op">://</span>raw<span class="op">.</span>githubusercontent<span class="op">.</span>com<span class="op">/</span>dhall<span class="op">-</span>lang<span class="op">/</span>dhall<span class="op">-</span>kubernetes<span class="op">/</span>6a47bd50c4d3984a13570ea62382a3ad4a9919a4<span class="op">/</span><span class="fl">1.14</span><span class="op">/</span>package<span class="op">.</span>dhall</span>
+<span id="cb7-4"><a href="#cb7-4"></a></span>
+<span id="cb7-5"><a href="#cb7-5"></a><span class="kw">let</span> <span class="dt">Webhook</span> <span class="ot">=</span> </span>
+<span id="cb7-6"><a href="#cb7-6"></a>    https<span class="op">://</span>raw<span class="op">.</span>githubusercontent<span class="op">.</span>com<span class="op">/</span><span class="dt">EarnestResearch</span><span class="op">/</span>dhall<span class="op">-</span>packages<span class="op">/</span>v0<span class="op">.</span><span class="fl">11.1</span><span class="op">/</span>kubernetes<span class="op">/</span>webhook<span class="op">/</span>package<span class="op">.</span>dhall</span>
+<span id="cb7-7"><a href="#cb7-7"></a></span>
+<span id="cb7-8"><a href="#cb7-8"></a><span class="kw">let</span> config <span class="ot">=</span></span>
+<span id="cb7-9"><a href="#cb7-9"></a>      <span class="dt">Webhook</span><span class="ot">::</span>{</span>
+<span id="cb7-10"><a href="#cb7-10"></a>      , imageName <span class="ot">=</span> <span class="st">&quot;docker/whalesay&quot;</span> <span class="co">-- replace with your webhook docker image</span></span>
+<span id="cb7-11"><a href="#cb7-11"></a>      , name <span class="ot">=</span> <span class="st">&quot;my-mutating-webhook&quot;</span> <span class="co">-- replace with a meaningful name</span></span>
+<span id="cb7-12"><a href="#cb7-12"></a>      , namespace <span class="ot">=</span> <span class="st">&quot;default&quot;</span> <span class="co">-- replace with the namespace where you want to deploy it</span></span>
+<span id="cb7-13"><a href="#cb7-13"></a>      , path <span class="ot">=</span> <span class="st">&quot;/mutate&quot;</span> <span class="co">-- replace with the path where the webhook is exposed</span></span>
+<span id="cb7-14"><a href="#cb7-14"></a>      , port <span class="ot">=</span> <span class="dv">8080</span> <span class="co">--replace with the port where the webhook is exposed</span></span>
+<span id="cb7-15"><a href="#cb7-15"></a>      , rules <span class="ot">=</span> <span class="co">-- replace with the rules you care about</span></span>
+<span id="cb7-16"><a href="#cb7-16"></a>        [ k8s<span class="op">.</span><span class="dt">RuleWithOperations</span><span class="ot">::</span>{</span>
+<span id="cb7-17"><a href="#cb7-17"></a>          , operations <span class="ot">=</span> [ <span class="st">&quot;CREATE&quot;</span>, <span class="st">&quot;UPDATE&quot;</span> ]</span>
+<span id="cb7-18"><a href="#cb7-18"></a>          , apiGroups <span class="ot">=</span> [ <span class="st">&quot;&quot;</span> ]</span>
+<span id="cb7-19"><a href="#cb7-19"></a>          , apiVersions <span class="ot">=</span> [ <span class="st">&quot;v1&quot;</span> ]</span>
+<span id="cb7-20"><a href="#cb7-20"></a>          , resources <span class="ot">=</span> [ <span class="st">&quot;pods&quot;</span> ]</span>
+<span id="cb7-21"><a href="#cb7-21"></a>          }</span>
+<span id="cb7-22"><a href="#cb7-22"></a>        ]</span>
+<span id="cb7-23"><a href="#cb7-23"></a>      , namespaceSelector <span class="ot">=</span> <span class="dt">Some</span> k8s<span class="op">.</span><span class="dt">LabelSelector</span><span class="ot">::</span>{</span>
+<span id="cb7-24"><a href="#cb7-24"></a>        , matchLabels <span class="ot">=</span> toMap { my<span class="op">-</span>webhook <span class="ot">=</span> <span class="st">&quot;enabled&quot;</span> } <span class="co">-- replace with the label you used for the namespace</span></span>
+<span id="cb7-25"><a href="#cb7-25"></a>        }</span>
+<span id="cb7-26"><a href="#cb7-26"></a>      }</span>
+<span id="cb7-27"><a href="#cb7-27"></a></span>
+<span id="cb7-28"><a href="#cb7-28"></a><span class="kw">in</span>  Webhook.renderMutatingWebhook config <span class="co">-- or Webhook.renderValidatingWebhook </span></span></code></pre></div>
+<p>Once the file is ready, run</p>
+<pre><code>dhall-to-yaml --omit-empty | kubectl apply -n default -f -</code></pre>
+<p>The webhook will be installed and ready to use, with all the certificates loaded.</p>
+    </article>
+
+</div>
+
+<footer>
+    Built with Haskell using <a href="https://github.com/ChrisPenner/slick">slick</a> ❤️
+</footer>
+
+<script src="/js/main.js"></script>
+</body>
+</html>

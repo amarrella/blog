@@ -9,6 +9,7 @@ import           Control.Lens
 import           Control.Monad
 import           Data.Aeson                 as A
 import           Data.Aeson.Lens
+import           Data.List
 import           Development.Shake
 import           Development.Shake.Classes
 import           Development.Shake.Forward
@@ -65,13 +66,17 @@ data Post =
          , date    :: String
          , image   :: Maybe String
          }
-    deriving (Generic, Eq, Ord, Show, FromJSON, ToJSON, Binary)
+    deriving (Generic, Eq, Show, FromJSON, ToJSON, Binary)
+
+instance Ord Post where 
+  compare p1 p2 = compare (date p2) (date p1)
 
 -- | given a list of posts this will build a table of contents
 buildIndex :: [Post] -> Action ()
 buildIndex posts' = do
+  let sorted = sort posts'
   indexT <- compileTemplate' "site/templates/index.html"
-  let indexInfo = IndexInfo {posts = posts'}
+  let indexInfo = IndexInfo {posts = sorted}
       indexHTML = T.unpack $ substitute indexT (withSiteMeta $ toJSON indexInfo)
   writeFile' (outputFolder </> "index.html") indexHTML
 

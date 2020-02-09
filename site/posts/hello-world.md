@@ -1,7 +1,7 @@
 ---
 title: "Hello World!"
 author: Alessandro Marrella
-date: Feb 9, 2020
+date: 2020-02-08
 tags: [site]
 description: Hello world! Welcome to my blog!
 ---
