@@ -30,3 +30,7 @@ code {
 .sourceCode .re { }
 /* ErrorTok */
 .sourceCode .er { color: #E6DB74; font-weight: bold; }
+
+.sourceCode {
+    overflow:scroll;
+}
