@@ -1,0 +1,36 @@
+name:                slick-template
+version:             0.1.0.0
+github:              "amarrella/amarrella.github.io"
+license:             BSD3
+author:              "Alessandro Marrella"
+maintainer:          "dev@alessandromarrella.com"
+copyright:           "2020 Alessandro Marrella"
+
+extra-source-files:
+- README.md
+- ChangeLog.md
+
+synopsis:            My site built with slick!
+category:            Slick-Site
+
+description: My slick Site
+
+executables:
+  build-site:
+    main:                Main.hs
+    source-dirs:         app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    - -Wall
+    dependencies:
+    - base >= 4.7 && < 5
+    - shake
+    - slick
+    - text
+    - containers
+    - unordered-containers
+    - lens
+    - aeson
+    - lens-aeson
