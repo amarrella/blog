@@ -30,8 +30,7 @@
             <a class="ext-link" href="https://twitter.com/amarrella">
             <img src="/images/twitter-logo.png" alt="Twitter Profile"/>
         </a>
-    <div id="theme-button">DAY</div>
-        </div>
+    </div>
     </header>
 
 <div id="page">
@@ -115,7 +114,14 @@
 <span id="cb5-2"><a href="#cb5-2"></a>mutate <span class="ot">=</span> mutatingWebhook req (\_ <span class="ot">-&gt;</span> <span class="dt">Right</span> patch)</span></code></pre></div>
 <p>And that's it! Compile and create a docker image, and jump to the next section.</p>
 <h2 id="how-to-deploy-the-kubernetes-webhook-using-dhall">How to deploy the Kubernetes Webhook using Dhall</h2>
-<p>Regardless of the fact that you created the webhook with the library above or not, this part explains how to deploy a webhook to Kubernetes by using an opinionated dhall template.</p>
+<p>Regardless of the fact that you created the webhook with the library above or not, this part explains how to deploy a webhook to Kubernetes by using an opinionated Dhall template.</p>
+<p>Dhall is a configuration language aimed at writing maintainable configuration files. It's a great language to write infrastructure configuration in, with features such as:</p>
+<ul>
+<li>(safe) imports</li>
+<li>functions</li>
+<li>types</li>
+<li>See <a href="https://dhall-lang.org">dhall-lang.org</a> for more information about the language.</li>
+</ul>
 <p>As a <em>pre-requisite</em> for this part, you need to:</p>
 <ul>
 <li>Install <a href="https://cert-manager.io">cert-manager</a> in your cluster. This has been tested with cert-manager <code>v0.13.0</code> with the ca-injector enabled.</li>
