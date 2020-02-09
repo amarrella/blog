@@ -91,7 +91,14 @@ mutate = mutatingWebhook req (\_ -> Right patch)
 And that's it! Compile and create a docker image, and jump to the next section.
 
 ## How to deploy the Kubernetes Webhook using Dhall
-Regardless of the fact that you created the webhook with the library above or not, this part explains how to deploy a webhook to Kubernetes by using an opinionated dhall template.
+Regardless of the fact that you created the webhook with the library above or not, this part explains how to deploy a webhook to Kubernetes by using an opinionated Dhall template.
+
+Dhall is a configuration language aimed at writing maintainable configuration files. It's a great language to write infrastructure configuration in, with features such as: 
+- (safe) imports
+- functions
+- types
+- 
+See [dhall-lang.org](https://dhall-lang.org) for more information about the language.
 
 As a *pre-requisite* for this part, you need to:
 - Install [cert-manager](https://cert-manager.io) in your cluster. This has been tested with cert-manager `v0.13.0` with the ca-injector enabled.
