@@ -12,12 +12,16 @@
 <body>
     {{>site/templates/header.html}}
 <div id="page">
-            <section class="table-of-contents">
-                <h1>All Posts</h1>
-                <div class="metadata">
-                </div>
-                {{>site/templates/post-list.html}}
-        </section>
+    <div id="welcome">
+        <p>Hi there! Welcome to my website! 😊</p>
+        <p>This is meant to be my "public" personal space, a bit like websites before social media were.</p>
+    </div>
+    <section class="table-of-contents">
+        <h1>All posts</h1>
+        <div class="metadata">
+        </div>
+        {{>site/templates/post-list.html}}
+    </section>
 </div>
 
 {{>site/templates/footer.html}}

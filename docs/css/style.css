@@ -289,7 +289,9 @@ a.tag, a.category {
 
 .table-of-contents {
   clear: both;
-  width: 100%; }
+  width: 100%;
+  padding-top: 20px;
+  }
   .table-of-contents h1 {
     font-size: 3em;
     text-align: center;
@@ -565,4 +567,9 @@ a.tag, a.category {
   margin-left: 12px;
 }
 
+#welcome {
+  clear: both;
+  width: 100%; 
+  text-align: center;
+}
 /*# sourceMappingURL=style.css.map */
