@@ -62,19 +62,19 @@
 <p>In this post, I will present the <a href="https://hackage.haskell.org/package/kubernetes-webhook-haskell">kubernetes-webhook-haskell</a> library, which is used to create the webhook, and a <code>dhall</code> template that helps with the configuration and tls certificates. Many tutorials I found online show how to do this with a bash script, here we take a more declarative approach using <a href="https://cert-manager.io">cert-manager</a>.</p>
 <h2 id="how-to-write-a-kubernetes-webhook-in-haskell">How to write a Kubernetes Webhook in Haskell</h2>
 <p>This is a step by step explanation on how to write a webhook in Haskell. If you are familiar with Haskell, and servant, you can skip this section and <a href="https://github.com/EarnestResearch/kubernetes-webhook-haskell#kubernetes-webhook-haskell">look at the example</a> instead.</p>
-<p>First of all, set up a project using your favorite build tool, adding <code>kubernetes-webhook-haskell</code> as a dependency.</p>
-<p>Second, you need to create an endpoint where you will be receiving the requests. In <code>servant</code>, this looks like:</p>
+<p>First of all, <em>set up a project</em> using your favorite build tool, adding <code>kubernetes-webhook-haskell</code> as a dependency.</p>
+<p>Second, you need to <em>create an endpoint</em> where you will be receiving the requests. In <code>servant</code>, this looks like:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">type</span> <span class="dt">API</span> <span class="ot">=</span></span>
 <span id="cb1-2"><a href="#cb1-2"></a>  <span class="co">-- /mutate</span></span>
 <span id="cb1-3"><a href="#cb1-3"></a>  <span class="st">&quot;mutate&quot;</span> <span class="op">:&gt;</span> <span class="dt">ReqBody</span> &#39;[<span class="dt">JSON</span>] <span class="dt">AdmissionReviewRequest</span> <span class="op">:&gt;</span> <span class="dt">Post</span> &#39;[<span class="dt">JSON</span>] <span class="dt">AdmissionReviewResponse</span></span></code></pre></div>
-<p>Third, you need to set up the server so that it runs on https (kubernetes only allows https for webhooks), with <code>warp-tls</code> you can do something like:</p>
+<p>Third, you need to <em>set up the server so that it runs on https</em> (kubernetes only allows https for webhooks), with <code>warp-tls</code> you can do something like:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb2-1"><a href="#cb2-1"></a><span class="ot">main ::</span> <span class="dt">IO</span> ()</span>
 <span id="cb2-2"><a href="#cb2-2"></a>main <span class="ot">=</span> <span class="kw">do</span></span>
 <span id="cb2-3"><a href="#cb2-3"></a>  <span class="kw">let</span> tlsOpts <span class="ot">=</span> tlsSettings <span class="st">&quot;/certs/tls.crt&quot;</span> <span class="st">&quot;/certs/tls.key&quot;</span></span>
 <span id="cb2-4"><a href="#cb2-4"></a>      warpOpts <span class="ot">=</span> setPort <span class="dv">8080</span> defaultSettings</span>
 <span id="cb2-5"><a href="#cb2-5"></a>  runTLS tlsOpts warpOpts app</span></code></pre></div>
 <p>If you will be using the template provided in the section below, we will load the certificates there.</p>
-<p>Fourth, you can write the webhook logic. Depending on whether you are writing a validating or a mutating webhook, the library exposes two different functions: <code>mutatingWebhook</code> and <code>validatingWebhook</code>. The logic is similar for both, you parse a request, write a handler for it returning either an error (of type <code>Status</code>) or a <code>Allowed</code>/<code>Patch</code> (see <a href="http://jsonpatch.com/" class="uri">http://jsonpatch.com/</a> for information on how to write the patch).</p>
+<p>Fourth, you can <em>write the webhook logic</em>. Depending on whether you are writing a validating or a mutating webhook, the library exposes two different functions: <code>mutatingWebhook</code> and <code>validatingWebhook</code>. The logic is similar for both, you parse a request, write a handler for it returning either an error (of type <code>Status</code>) or a <code>Allowed</code>/<code>Patch</code> (see <a href="http://jsonpatch.com/" class="uri">http://jsonpatch.com/</a> for information on how to write the patch).</p>
 <p>For example, if you want to write a mutating webhook that adds a toleration to your pods, you should define the Toleration type:</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb3-1"><a href="#cb3-1"></a><span class="kw">data</span> <span class="dt">Toleration</span></span>
 <span id="cb3-2"><a href="#cb3-2"></a>  <span class="ot">=</span> <span class="dt">Toleration</span></span>
@@ -116,12 +116,12 @@
 <p>And that's it! Compile and create a docker image, and jump to the next section.</p>
 <h2 id="how-to-deploy-the-kubernetes-webhook-using-dhall">How to deploy the Kubernetes Webhook using Dhall</h2>
 <p>Regardless of the fact that you created the webhook with the library above or not, this part explains how to deploy a webhook to Kubernetes by using an opinionated dhall template.</p>
-<p>As a pre-requisite for this part, you need to:</p>
+<p>As a <em>pre-requisite</em> for this part, you need to:</p>
 <ul>
 <li>Install <a href="https://cert-manager.io">cert-manager</a> in your cluster. This has been tested with cert-manager <code>v0.13.0</code> with the ca-injector enabled.</li>
 <li>Install <a href="https://dhall-lang.org">dhall-to-yaml</a> on your laptop or in your continuous deployment / gitops. This has been tested with dhall-to-yaml <code>v1.6.1</code>.</li>
 </ul>
-<p>Then, add a custom label to the namespaces you want to apply the webhook to:</p>
+<p>Then, <em>add a custom label</em> to the namespaces you want to apply the webhook to:</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1"></a><span class="ex">kubectl</span> label namespace my-namespace my-webhook=enabled</span></code></pre></div>
 <p>Deploying a webhook now is as easy as replacing the values in this example with yours:</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb7-1"><a href="#cb7-1"></a><span class="co">-- webhook.dhall</span></span>
@@ -153,7 +153,7 @@
 <span id="cb7-27"><a href="#cb7-27"></a></span>
 <span id="cb7-28"><a href="#cb7-28"></a><span class="kw">in</span>  Webhook.renderMutatingWebhook config <span class="co">-- or Webhook.renderValidatingWebhook </span></span></code></pre></div>
 <p>Once the file is ready, run</p>
-<pre><code>dhall-to-yaml --omit-empty | kubectl apply -n default -f -</code></pre>
+<pre><code>echo ./webhook.dhall | dhall-to-yaml --omit-empty | kubectl apply -n default -f -</code></pre>
 <p>The webhook will be installed and ready to use, with all the certificates loaded.</p>
     </article>
 
