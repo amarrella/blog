@@ -506,12 +506,10 @@ a.tag, a.category {
 
 @media only screen and (max-width: 750px) {
   header {
-    color: #FFFFFC;
     height: 3em;
-    background: rgba(76, 76, 76, 0.9); }
+     }
 
   #beacon {
-    color: #FFFFFC;
     font-size: 2em;
     margin: 0; }
 
