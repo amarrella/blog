@@ -1,15 +1,15 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.33.0.
+-- This file has been generated from package.yaml by hpack version 0.31.2.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: d59da625932ba1190ca9ed6a1d00f93c08de9a671797f81d2cb4ea43d0c9a884
+-- hash: f0023c5fe696c06187e5a35c9259f98c0780840bbd393de043cbfecf1d2af0be
 
-name:           slick-template
+name:           blog
 version:        0.1.0.0
-synopsis:       My site built with slick!
-description:    My slick Site
+synopsis:       Alessandro Marrella's Blog
+description:    Alessandro Marrella's Blog
 category:       Slick-Site
 homepage:       https://github.com/amarrella/amarrella.github.io#readme
 bug-reports:    https://github.com/amarrella/amarrella.github.io/issues
@@ -30,7 +30,7 @@ source-repository head
 executable build-site
   main-is: Main.hs
   other-modules:
-      Paths_slick_template
+      Paths_blog
   hs-source-dirs:
       app
   ghc-options: -threaded -rtsopts -with-rtsopts=-N -Wall

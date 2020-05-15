@@ -1,4 +1,4 @@
-name:                slick-template
+name:                blog
 version:             0.1.0.0
 github:              "amarrella/amarrella.github.io"
 license:             BSD3
@@ -10,10 +10,10 @@ extra-source-files:
 - README.md
 - ChangeLog.md
 
-synopsis:            My site built with slick!
+synopsis:            Alessandro Marrella's Blog
 category:            Slick-Site
 
-description: My slick Site
+description: Alessandro Marrella's Blog
 
 executables:
   build-site:
