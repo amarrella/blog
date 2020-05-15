@@ -21,5 +21,6 @@ hsPkgs.shellFor {
     niv.niv
     nixpkgs-fmt
     nodejs-12_x
+    git
   ];
 }
