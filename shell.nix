@@ -20,7 +20,7 @@ hsPkgs.shellFor {
   buildInputs = with pkgs; [
     niv.niv
     nixpkgs-fmt
-    nodejs-12_x
+    nodePackages.serve
     git
   ];
 }
