@@ -12,7 +12,7 @@ jobs:
     - uses: actions/checkout@v2
     - uses: cachix/install-nix-action@releases/v7
     - run: nix-env -iA cachix -f https://cachix.org/api/v1/install
-    - uses: cachix use iohk
+    - run: cachix use iohk
     - uses: cachix/cachix-action@v6
       with:
         name: amarrella
