@@ -3,7 +3,7 @@ name: Publish
 on: 
   push:
     branches:
-    - develop
+    - master
 
 jobs:
   publish:
@@ -24,4 +24,3 @@ jobs:
         title: Publish
         committer: GitHub <noreply@github.com>
         author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
-        branch: staging
