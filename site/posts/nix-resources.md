@@ -26,7 +26,7 @@ Let's break down the features listed in the description above:
 - *easy setup of build environments*: it's _relatively easy_ to set up isolated build environments with the packages and versions you need. I say relatively because you'd still have to learn Nix, and the learning curve is steep. But once you learn it, it empowers you to do this. It's much harder to achieve this with "easier" package managers (so much that people starting creating docker images with their build environments, ugh).
 
 
-I hope this list convinced you that learning Nix is worth it :) There are many more exciting features (like distributed binary caches), but now let's proceed with the learning stuff.
+I hope this list convinced you that learning Nix is worth it :) There are many more exciting features (like distributed binary caches, or the possibility to create small docker images and AMIs with the same language and only pull the runtime closures required), but now let's proceed with the learning stuff.
 
 ## How to learn Nix
 
