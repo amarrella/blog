@@ -1,14 +1,14 @@
 pre {
-    background-color: #F5FCFF;
+    background-color: #fdf6e3;
 }
 
 code {
-    background-color: #F5FCFF;
-    color: #268BD2;
+    background-color: #fdf6e3;
+    color: #657b83;
 }
 
 /* KeyWordTok */
-.sourceCode .kw { color: #600095; }
+.sourceCode .kw { color: #859900; }
 /* DataTypeTok */
 .sourceCode .dt { color: #268BD2; }
 
