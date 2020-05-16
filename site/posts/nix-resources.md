@@ -56,7 +56,7 @@ Note: to search packages, the video mentions this link: https://nixos.org/nixos/
 
 ### Learn how to use and create nix-shells
 
-Nix shells are a very powerful tool to create isolated development environment. I started creating them for many of the projects I am working on (some projects even have more than one shell) and they truly are a blessing. No more fiddling with different versions of software required in different projects. 
+Nix shells are a very powerful tool to create isolated development environments. I started creating them for many of the projects I am working on (some projects even have more than one shell) and they truly are a blessing. No more fiddling with different versions of software required in different projects. 
 
 
 You can start a nix-shell in any project that contains a `default.nix` or `shell.nix` file (for example [this blog](https://github.com/amarrella/blog)) and you will be dropped into a shell which contains the dependencies you need to work. To learn how to create these files, check out the [Learn how to write a derivation in Nix](#learn-how-to-write-a-derivation-in-nix) section.
