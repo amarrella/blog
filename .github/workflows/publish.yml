@@ -9,18 +9,19 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
     - uses: cachix/install-nix-action@releases/v7
     - run: nix-env -iA cachix -f https://cachix.org/api/v1/install
+    - uses: cachix use iohk
     - uses: cachix/cachix-action@v6
       with:
         name: amarrella
         signingKey: '${{ secrets.AMARRELLA_PUBLIC_SIGNING_KEY }}'
     - run: nix build -f . blog.components.exes.build-site
     - run: result/bin/build-site
-    - run: |
-        git add docs
-        git commit -m "autopublish: blog"
-        git checkout master
-        git rebase develop
-        git push -u origin master
+    - uses: peter-evans/create-pull-request@v2
+      with:
+        title: Publish
+        committer: GitHub <noreply@github.com>
+        author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
+        branch: staging
