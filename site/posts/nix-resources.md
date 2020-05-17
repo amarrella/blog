@@ -40,7 +40,7 @@ I am linking to the multi user installation instructions because it seems to be 
 If you are on Mac Os X *10.15 or above (CATALINA or later)* you are in for some pain. Apple changed how they manage their file system and the `/` directory is locked. So you need to follow a quite significant workaround to get it installed (until [this PR](https://github.com/NixOS/nix/pull/3212) gets merged).
 - Create a volume for Nix via [this script](https://github.com/abathur/nix/blob/darwin-10.15-install-golden-path/scripts/create-darwin-volume.sh)
 - Install nix via: `curl -fsSL https://nixos.org/nix/install | sh /dev/stdin --daemon` 
-- Close the termainal. Open a new one. (yes this is necessary)
+- Close and reopen the terminal to make sure the right environment is loaded.
 
 ### Learn to use Nix as a your package manager replacement
 
