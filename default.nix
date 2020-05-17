@@ -7,5 +7,5 @@ in
 { pkgs ? import nixpkgsSrc nixpkgsArgs
 }:
   pkgs.haskell-nix.stackProject {
-    src = pkgs.haskell-nix.haskellLib.cleanGit { name = "blog"; src = ./.; };
+    src = ./src;
   }

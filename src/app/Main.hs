@@ -1,36 +1,36 @@
-{-# LANGUAGE NamedFieldPuns        #-}
-{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DeriveAnyClass #-}
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module Main where
 
-import           Control.Lens
-import           Control.Monad
-import           Data.Aeson                 as A
-import           Data.Aeson.Lens
-import           Data.List
-import           Development.Shake
-import           Development.Shake.Classes
-import           Development.Shake.Forward
-import           Development.Shake.FilePath
-import           GHC.Generics               (Generic)
-import           Slick
-
+import Control.Lens
+import Control.Monad
+import Data.Aeson as A
+import Data.Aeson.Lens
 import qualified Data.HashMap.Lazy as HML
-import qualified Data.Text                  as T
+import Data.List
+import qualified Data.Text as T
+import Development.Shake
+import Development.Shake.Classes
+import Development.Shake.FilePath
+import Development.Shake.Forward
+import GHC.Generics (Generic)
+import Slick
 
 ---Config-----------------------------------------------------------------------
 
 siteMeta :: SiteMeta
 siteMeta =
-    SiteMeta { siteAuthor = "Alessandro Marrella"
-             , baseUrl = "https://alessandromarrella.com"
-             , siteTitle = "Alessandro Marrella. Welcome to my website!"
-             , twitterHandle = Just "amarrella"
-             , githubUser = Just "amarrella"
-             , linkedinHandle = Just "alessandromarrella"
-             }
+  SiteMeta
+    { siteAuthor = "Alessandro Marrella",
+      baseUrl = "https://alessandromarrella.com",
+      siteTitle = "Alessandro Marrella. Welcome to my website!",
+      twitterHandle = Just "amarrella",
+      githubUser = Just "amarrella",
+      linkedinHandle = Just "alessandromarrella"
+    }
 
 outputFolder :: FilePath
 outputFolder = "docs/"
@@ -43,34 +43,37 @@ withSiteMeta (Object obj) = Object $ HML.union obj siteMetaObj
     Object siteMetaObj = toJSON siteMeta
 withSiteMeta _ = error "only add site meta to objects"
 
-data SiteMeta =
-    SiteMeta { siteAuthor    :: String
-             , baseUrl       :: String -- e.g. https://example.ca
-             , siteTitle     :: String
-             , twitterHandle :: Maybe String -- Without @
-             , githubUser    :: Maybe String
-             , linkedinHandle :: Maybe String
-             }
-    deriving (Generic, Eq, Ord, Show, ToJSON)
+data SiteMeta
+  = SiteMeta
+      { siteAuthor :: String,
+        baseUrl :: String, -- e.g. https://example.ca
+        siteTitle :: String,
+        twitterHandle :: Maybe String, -- Without @
+        githubUser :: Maybe String,
+        linkedinHandle :: Maybe String
+      }
+  deriving (Generic, Eq, Ord, Show, ToJSON)
 
 -- | Data for the index page
-data IndexInfo =
-  IndexInfo
-    { posts :: [Post]
-    } deriving (Generic, Show, FromJSON, ToJSON)
+data IndexInfo
+  = IndexInfo
+      { posts :: [Post]
+      }
+  deriving (Generic, Show, FromJSON, ToJSON)
 
 -- | Data for a blog post
-data Post =
-    Post { title   :: String
-         , author  :: String
-         , content :: String
-         , url     :: String
-         , date    :: String
-         , image   :: Maybe String
-         }
-    deriving (Generic, Eq, Show, FromJSON, ToJSON, Binary)
+data Post
+  = Post
+      { title :: String,
+        author :: String,
+        content :: String,
+        url :: String,
+        date :: String,
+        image :: Maybe String
+      }
+  deriving (Generic, Eq, Show, FromJSON, ToJSON, Binary)
 
-instance Ord Post where 
+instance Ord Post where
   compare p1 p2 = compare (date p2) (date p1)
 
 -- | given a list of posts this will build a table of contents
@@ -107,9 +110,9 @@ buildPost srcPath = cacheAction ("build" :: T.Text, srcPath) $ do
 -- | Copy all static files from the listed folders to their destination
 copyStaticFiles :: Action ()
 copyStaticFiles = do
-    filepaths <- getDirectoryFiles "./site/" ["images//*", "css//*", "js//*"]
-    void $ forP filepaths $ \filepath ->
-        copyFileChanged ("site" </> filepath) (outputFolder </> filepath)
+  filepaths <- getDirectoryFiles "./site/" ["images//*", "css//*", "js//*"]
+  void $ forP filepaths $ \filepath ->
+    copyFileChanged ("site" </> filepath) (outputFolder </> filepath)
 
 -- | Specific build rules for the Shake system
 --   defines workflow to build the website
@@ -121,5 +124,5 @@ buildRules = do
 
 main :: IO ()
 main = do
-  let shOpts = shakeOptions { shakeVerbosity = Chatty, shakeLintInside = ["site"]}
+  let shOpts = shakeOptions {shakeVerbosity = Chatty, shakeLintInside = ["site"]}
   shakeArgsForward shOpts buildRules
