@@ -76,6 +76,15 @@ data Post
 instance Ord Post where
   compare p1 p2 = compare (date p2) (date p1)
 
+-- | given a list of posts this will a rss feed
+buildFeed :: [Post] -> Action ()
+buildFeed posts' = do
+  let sorted = sort posts'
+  feedT <- compileTemplate' "site/templates/feed.rss"
+  let feedInfo = IndexInfo {posts = sorted}
+      feed = T.unpack $ substitute feedT (withSiteMeta $ toJSON feedInfo)
+  writeFile' (outputFolder </> "feed.rss") feed
+
 -- | given a list of posts this will build a table of contents
 buildIndex :: [Post] -> Action ()
 buildIndex posts' = do
@@ -120,6 +129,7 @@ buildRules :: Action ()
 buildRules = do
   allPosts <- buildPosts
   buildIndex allPosts
+  buildFeed allPosts
   copyStaticFiles
 
 main :: IO ()

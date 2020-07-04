@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: f0023c5fe696c06187e5a35c9259f98c0780840bbd393de043cbfecf1d2af0be
+-- hash: 0a6f3a525a958013289862e5551d53470617b167b08077df6b13e31c1b9b7b1f
 
 name:           blog
 version:        0.1.0.0
@@ -17,7 +17,6 @@ author:         Alessandro Marrella
 maintainer:     dev@alessandromarrella.com
 copyright:      2020 Alessandro Marrella
 license:        BSD3
-license-file:   LICENSE
 build-type:     Simple
 extra-source-files:
     README.md
