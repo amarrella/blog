@@ -1,9 +1,19 @@
 <rss version="2.0">
 <channel>
   <item>
-    <title></title>
-    <link>"</link>
-    <description></description>
+    <title>How to get started with Nix</title>
+    <link>https://alessandromarrella.com/posts/nix-resources.html</link>
+    <description>How to get started with Nix</description>
+  </item>
+  <item>
+    <title>Kubernetes Webhooks in Haskell and Dhall</title>
+    <link>https://alessandromarrella.com/posts/kubernetes-webhooks.html</link>
+    <description>Kubernetes Webhooks in Haskell and Dhall</description>
+  </item>
+  <item>
+    <title>Hello World!</title>
+    <link>https://alessandromarrella.com/posts/hello-world.html</link>
+    <description>Hello World!</description>
   </item>
 </channel>
 </rss>

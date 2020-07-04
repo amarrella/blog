@@ -1,9 +1,11 @@
 <rss version="2.0">
 <channel>
+{{#posts}}
   <item>
     <title>{{title}}</title>
-    <link>"{{url}}</link>
-    <description>{{description}}</description>
+    <link>https://alessandromarrella.com/{{url}}</link>
+    <description>{{title}}</description>
   </item>
+{{/posts}}
 </channel>
 </rss>
