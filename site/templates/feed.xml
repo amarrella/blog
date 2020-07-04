@@ -5,11 +5,11 @@
 <link>https://alessandromarrella.com/</link>
 <description> Hi there! Welcome to my website! This is meant to be my "public" personal space, a bit like websites before social media were. </description>
 {{#posts}}
-  <item>
-    <title>{{title}}</title>
-    <link>https://alessandromarrella.com/{{url}}</link>
-    <description>{{title}}</description>
-  </item>
+<item>
+  <title>{{title}}</title>
+  <link>https://alessandromarrella.com/{{url}}</link>
+  <description>{{title}}</description>
+</item>
 {{/posts}}
 <atom:link href="https://alessandromarrella.com/feed.rss" rel="self" type="application/rss+xml"/>
 <ttl>60</ttl>

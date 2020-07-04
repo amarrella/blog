@@ -80,10 +80,10 @@ instance Ord Post where
 buildFeed :: [Post] -> Action ()
 buildFeed posts' = do
   let sorted = sort posts'
-  feedT <- compileTemplate' "site/templates/feed.rss"
+  feedT <- compileTemplate' "site/templates/feed.xml"
   let feedInfo = IndexInfo {posts = sorted}
       feed = T.unpack $ substitute feedT (withSiteMeta $ toJSON feedInfo)
-  writeFile' (outputFolder </> "feed.rss") feed
+  writeFile' (outputFolder </> "feed.xml") feed
 
 -- | given a list of posts this will build a table of contents
 buildIndex :: [Post] -> Action ()

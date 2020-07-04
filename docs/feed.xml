@@ -4,21 +4,21 @@
 <title>Alessandro Marrella. Welcome to my website!</title>
 <link>https://alessandromarrella.com/</link>
 <description> Hi there! Welcome to my website! This is meant to be my "public" personal space, a bit like websites before social media were. </description>
-  <item>
-    <title>How to get started with Nix</title>
-    <link>https://alessandromarrella.com/posts/nix-resources.html</link>
-    <description>How to get started with Nix</description>
-  </item>
-  <item>
-    <title>Kubernetes Webhooks in Haskell and Dhall</title>
-    <link>https://alessandromarrella.com/posts/kubernetes-webhooks.html</link>
-    <description>Kubernetes Webhooks in Haskell and Dhall</description>
-  </item>
-  <item>
-    <title>Hello World!</title>
-    <link>https://alessandromarrella.com/posts/hello-world.html</link>
-    <description>Hello World!</description>
-  </item>
+<item>
+  <title>How to get started with Nix</title>
+  <link>https://alessandromarrella.com/posts/nix-resources.html</link>
+  <description>How to get started with Nix</description>
+</item>
+<item>
+  <title>Kubernetes Webhooks in Haskell and Dhall</title>
+  <link>https://alessandromarrella.com/posts/kubernetes-webhooks.html</link>
+  <description>Kubernetes Webhooks in Haskell and Dhall</description>
+</item>
+<item>
+  <title>Hello World!</title>
+  <link>https://alessandromarrella.com/posts/hello-world.html</link>
+  <description>Hello World!</description>
+</item>
 <atom:link href="https://alessandromarrella.com/feed.rss" rel="self" type="application/rss+xml"/>
 <ttl>60</ttl>
 </channel>
