@@ -76,10 +76,9 @@
 <h3 id="learn-how-to-install-nix">Learn how to install Nix</h3>
 <p>If you are on Linux or on a Mac Os X version <em>10.14 or earlier (NO CATALINA)</em> , no problem, just follow the instructions here: <a href="https://nixos.org/nix/manual/#sect-multi-user-installation" class="uri">https://nixos.org/nix/manual/#sect-multi-user-installation</a></p>
 <p>I am linking to the multi user installation instructions because it seems to be the most frequently adopted in the community, so it might be easier to get help.</p>
-<p>If you are on Mac Os X <em>10.15 or above (CATALINA or later)</em> you are in for some pain. Apple changed how they manage their file system and the <code>/</code> directory is locked. So you need to follow a quite significant workaround to get it installed (until <a href="https://github.com/NixOS/nix/pull/3212">this PR</a> gets merged).</p>
+<p>If you are on Mac Os X <em>10.15 or above (CATALINA or later)</em>:</p>
 <ul>
-<li>Create a volume for Nix via <a href="https://github.com/abathur/nix/blob/darwin-10.15-install-golden-path/scripts/create-darwin-volume.sh">this script</a></li>
-<li>Install nix via: <code>curl -fsSL https://nixos.org/nix/install | sh /dev/stdin --daemon</code></li>
+<li>Install nix via: <code>curl -fsSL https://nixos.org/nix/install | sh /dev/stdin --daemon  --darwin-use-unencrypted-nix-store-volume</code></li>
 <li>Close and reopen the terminal to make sure the right environment is loaded.</li>
 </ul>
 <h3 id="learn-to-use-nix-as-a-your-package-manager-replacement">Learn to use Nix as a your package manager replacement</h3>
