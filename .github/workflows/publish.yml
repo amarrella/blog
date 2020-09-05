@@ -10,14 +10,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - uses: cachix/install-nix-action@releases/v7
-    - run: nix-env -iA cachix -f https://cachix.org/api/v1/install
-    - run: cachix use iohk
+    - uses: cachix/install-nix-action@v10
+      with:
+        nix_path: nixpkgs=channel:nixos-20.03
     - uses: cachix/cachix-action@v6
       with:
         name: amarrella
         signingKey: '${{ secrets.AMARRELLA_PUBLIC_SIGNING_KEY }}'
-    - run: nix build -f . blog.components.exes.build-site
+        extraPullNames: iohk
+    - run: nix-build -A blog.components.exes.build-site
     - run: result/bin/build-site
     - uses: peter-evans/create-pull-request@v2
       with:
