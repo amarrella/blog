@@ -62,25 +62,13 @@
 <p>Nix is a powerful package manager for Linux and other Unix systems that makes package management reliable and reproducible. It provides atomic upgrades and rollbacks, side-by-side installation of multiple versions of a package, multi-user package management and easy setup of build environments.</p>
 </blockquote>
 <p>So yeah, this post talks about a package manager. Usually this is something not very exciting. I can feel readers just thinking "aren't you just happy with Brew?". The truth is that Nix solved so many problems well that it's very hard for me not to get excited about it!</p>
-<p>Let's break down the features listed in the description above:</p>
-<ul>
-<li><em>package management</em>: well if this wasn't a feature we wouldn't really talk about a package manager</li>
-<li><em>makes package management reliable and reproducible</em>: here stuff starts to get interesting. With Nix stuff works on <em>everyone</em>'s machine, not just yours. This is because of how packages are built. Nix will pull all the necessary dependencies for you and packages are usually guaranteed to not need anything else (it makes no assumptions on what you already have installed).</li>
-<li><em>atomic upgrades and rollbacks</em>: for real, it's like having transactions but for installations. Because of how Nix works (more about it later), multiple versions of the same package can coexist in the system (!) so upgrading will just mean referencing the new version, rolling back referencing the old one. And for everything else, there is garbage collection :)</li>
-<li><em>side by side installation of multiple version of a package</em>: i spoilered this in the point above. But this works <em>really</em> well. You no longer have to decide which version of <code>npm</code> you need in your system and you can even start ephemeral shells with specific versions of stuff.</li>
-<li><em>multi user package management</em>: usually package managers install stuff in user space. Nix normally install stuff so that it's available to multiple users in the system.</li>
-<li><em>easy setup of build environments</em>: it's relatively easy to set up isolated build environments with the packages and versions you need. I say relatively because you'd still have to learn Nix, and the learning curve is steep. But once you learn it, it empowers you to do this. It's much harder to achieve this with "easier" package managers (so much that people starting creating docker images with their build environments, ugh).</li>
-</ul>
+<p>Let's break down the features listed in the description above: - <em>package management</em>: well if this wasn't a feature we wouldn't really talk about a package manager - <em>makes package management reliable and reproducible</em>: here stuff starts to get interesting. With Nix stuff works on <em>everyone</em>'s machine, not just yours. This is because of how packages are built. Nix will pull all the necessary dependencies for you and packages are usually guaranteed to not need anything else (it makes no assumptions on what you already have installed). - <em>atomic upgrades and rollbacks</em>: for real, it's like having transactions but for installations. Because of how Nix works (more about it later), multiple versions of the same package can coexist in the system (!) so upgrading will just mean referencing the new version, rolling back referencing the old one. And for everything else, there is garbage collection :) - <em>side by side installation of multiple version of a package</em>: i spoilered this in the point above. But this works <em>really</em> well. You no longer have to decide which version of <code>npm</code> you need in your system and you can even start ephemeral shells with specific versions of stuff. - <em>multi user package management</em>: usually package managers install stuff in user space. Nix normally install stuff so that it's available to multiple users in the system. - <em>easy setup of build environments</em>: it's relatively easy to set up isolated build environments with the packages and versions you need. I say relatively because you'd still have to learn Nix, and the learning curve is steep. But once you learn it, it empowers you to do this. It's much harder to achieve this with "easier" package managers (so much that people starting creating docker images with their build environments, ugh).</p>
 <p>I hope this list convinced you that learning Nix is worth it :) There are many more exciting features (like distributed binary caches, or the possibility to create small docker images and AMIs with the same language and only pull the runtime closures required), but now let's proceed with the learning stuff.</p>
 <h2 id="how-to-learn-nix">How to learn Nix</h2>
 <h3 id="learn-how-to-install-nix">Learn how to install Nix</h3>
 <p>If you are on Linux or on a Mac Os X version <em>10.14 or earlier (NO CATALINA)</em> , no problem, just follow the instructions here: <a href="https://nixos.org/nix/manual/#sect-multi-user-installation" class="uri">https://nixos.org/nix/manual/#sect-multi-user-installation</a></p>
 <p>I am linking to the multi user installation instructions because it seems to be the most frequently adopted in the community, so it might be easier to get help.</p>
-<p>If you are on Mac Os X <em>10.15 or above (CATALINA or later)</em>:</p>
-<ul>
-<li>Install nix via: <code>curl -fsSL https://nixos.org/nix/install | sh /dev/stdin --daemon  --darwin-use-unencrypted-nix-store-volume</code></li>
-<li>Close and reopen the terminal to make sure the right environment is loaded.</li>
-</ul>
+<p>If you are on Mac Os X <em>10.15 or above (CATALINA or later)</em>: - Install nix via: <code>curl -fsSL https://nixos.org/nix/install | sh /dev/stdin --daemon  --darwin-use-unencrypted-nix-store-volume</code> - Close and reopen the terminal to make sure the right environment is loaded.</p>
 <h3 id="learn-to-use-nix-as-a-your-package-manager-replacement">Learn to use Nix as a your package manager replacement</h3>
 <p>This video will explain briefly how to use nix as a "normal" package manager: <a href="https://www.youtube.com/watch?v=NYyImy-lqaA">Nix as a Homebrew Replacement</a></p>
 <p>I will refer to many other videos from the <a href="https://www.youtube.com/playlist?list=PLRGI9KQ3_HP_OFRG6R-p4iFgMSK1t5BHs">Nixology</a> playlist created by Burke Libbey throughout this article. If you want to skip ahead and watch all of them they are a great resource!</p>
@@ -92,8 +80,7 @@
 <p>You can also reference remote paths to start your shell. For example <code>nix-shell https://github.com/amarrella/blog/archive/master.tar.gz</code> will start the nix-shell used to build this blog.</p>
 <h4 id="automatic-nix-shells-with-direnv">Automatic nix-shells with direnv</h4>
 <p><a href="https://direnv.net/">direnv</a> is a software that lets you load and unload enviroment variables when entering and exiting a directory. In combination with a nix shell, this will allow you to get an isolated environment as soon as you <code>cd</code> into the directory. Install <a href="https://direnv.net/docs/installation.html">direnv</a> and <a href="https://github.com/nix-community/nix-direnv">nix-direnv</a>.</p>
-<p>To use it, create a <code>.envrc</code> file in the directory together with the nix shell and add the following line:</p>
-<pre><code>use nix</code></pre>
+<p>To use it, create a <code>.envrc</code> file in the directory together with the nix shell and add the following line: <code>use nix</code></p>
 <p>That's it. To enable direnv in the directory, run <code>direnv allow</code> and now every time you cd into that directory the environment is loaded.</p>
 <h3 id="learn-the-nix-language">Learn the Nix language</h3>
 <p>Nix has its own purely functional and (unfortunately) dynamically typed programming language. It's a quite simple language, designed specifically for the Nix package manager. You can take a tour of the language (you can read up to slide 23, the later slides are way more advanced and not really required): <a href="https://nixcloud.io/tour/" class="uri">https://nixcloud.io/tour/</a></p>
@@ -102,12 +89,7 @@
 <blockquote>
 <p>Packages are built from Nix expressions, which is a simple functional language. A Nix expression describes everything that goes into a package build action (a “derivation”): other packages, sources, the build script, environment variables for the build script, etc. Nix tries very hard to ensure that Nix expressions are deterministic: building a Nix expression twice should yield the same result.</p>
 </blockquote>
-<p>I suggest first watching these 3 videos from <a href="https://www.youtube.com/playlist?list=PLRGI9KQ3_HP_OFRG6R-p4iFgMSK1t5BHs">Nixology</a> to get an idea on what you can do with derivations:</p>
-<ul>
-<li><a href="https://www.youtube.com/watch?v=61RCi_5IgEY">Packaging a Gem as a Nix derivation</a></li>
-<li><a href="https://www.youtube.com/watch?v=1nU_hR2kod4">Using nix to prettify <code>ls</code> output on macOS</a></li>
-<li><a href="https://www.youtube.com/watch?v=XMauFegrtB4">Fetching stuff from the internet using Nix derivations</a></li>
-</ul>
+<p>I suggest first watching these 3 videos from <a href="https://www.youtube.com/playlist?list=PLRGI9KQ3_HP_OFRG6R-p4iFgMSK1t5BHs">Nixology</a> to get an idea on what you can do with derivations: - <a href="https://www.youtube.com/watch?v=61RCi_5IgEY">Packaging a Gem as a Nix derivation</a> - <a href="https://www.youtube.com/watch?v=1nU_hR2kod4">Using nix to prettify <code>ls</code> output on macOS</a> - <a href="https://www.youtube.com/watch?v=XMauFegrtB4">Fetching stuff from the internet using Nix derivations</a></p>
 <p>Then when you have a general idea and you need to dig deeper <a href="https://nixos.org/nixos/nix-pills/index.html">Nix pills</a> provides a good overview on how to build nix derivations.</p>
 <p>For a complete reference, you can check out the <a href="https://nixos.org/nix/manual/">nix manual</a>, which contains very useful sections such as the one dedicated to <a href="https://nixos.org/nixpkgs/manual/#sec-functions-library">Nixpkgs library functions</a>.</p>
 <h4 id="learn-how-to-create-derivations-to-package-your-code">Learn how to create derivations to package your code</h4>
@@ -116,13 +98,7 @@
 <p>Nix is also an excellent way of creating small and reproducible docker images. The <a href="https://nixos.org/nixpkgs/manual/#sec-pkgs-dockerTools">dockerTools</a> documentation provides some reference and examples.</p>
 <h3 id="learn-how-to-set-up-your-computer-or-servers-with-nix">Learn how to set up your computer or servers with Nix</h3>
 <p>You can use Nix to manage your home directory and all your user's environment via <a href="https://github.com/rycee/home-manager">home-manager</a>. It is really refreshing having a home directory and user environment managed in a declarative way, with easy updates to new versions and the possibility of rolling back at any point.</p>
-<p>You can check out these videos from <a href="https://www.youtube.com/playlist?list=PLRGI9KQ3_HP_OFRG6R-p4iFgMSK1t5BHs">Nixology</a> to learn more:</p>
-<ul>
-<li><a href="https://www.youtube.com/watch?v=Ubhc94lrfTo">Installing home-manager</a></li>
-<li><a href="https://www.youtube.com/watch?v=OgUvDXxHlLs">Getting started with home-manager</a></li>
-<li><a href="https://www.youtube.com/watch?v=PmD8Qe8z2sY">From nix-env to home-manager</a></li>
-<li><a href="https://www.youtube.com/watch?v=CID_ZbwObJ8">home-manager: reading the source</a></li>
-</ul>
+<p>You can check out these videos from <a href="https://www.youtube.com/playlist?list=PLRGI9KQ3_HP_OFRG6R-p4iFgMSK1t5BHs">Nixology</a> to learn more: - <a href="https://www.youtube.com/watch?v=Ubhc94lrfTo">Installing home-manager</a> - <a href="https://www.youtube.com/watch?v=OgUvDXxHlLs">Getting started with home-manager</a> - <a href="https://www.youtube.com/watch?v=PmD8Qe8z2sY">From nix-env to home-manager</a> - <a href="https://www.youtube.com/watch?v=CID_ZbwObJ8">home-manager: reading the source</a></p>
 <p>The <a href="https://rycee.gitlab.io/home-manager/">home-manager manual</a> is also a great resource. Make sure you check out the <a href="https://rycee.gitlab.io/home-manager/options.html">configuration options</a> appendix as well to see everything you can configure with home-manager.</p>
 <p>You can also use the power of Nix to manage everything that is installed on your machine by <a href="https://nixos.org/nixos/">using NixOs as a linux distribution</a> or installing <a href="https://github.com/LnL7/nix-darwin">nix-darwin</a> on your macOs. Both follow the same principle: you configure your machine using a configuration file and you apply changes atomically with <code>nixos-rebuild</code> or <code>darwin-rebuild</code>. Also here you have the possibility to roll back changes at any point. Here you can check the <a href="https://nixos.org/nixos/manual/">nixos manual</a> and <a href="https://lnl7.github.io/nix-darwin/manual/index.html">nix-darwin manual</a>.</p>
 <p>If you are curious about my configuration, it's published on <a href="https://github.com/amarrella/nix-config">Github</a>.</p>
